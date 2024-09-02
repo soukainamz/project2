@@ -1,83 +1,120 @@
 "use client";
 
+import { useState } from "react";
 import { useChat } from "ai/react";
-import { useEffect, useRef } from "react";
-import { marked } from "marked";
 
 export default function Chat() {
-    const {
-        messages,
-        input,
-        handleInputChange,
-        handleSubmit,
-        isLoading,
-        append,
-    } = useChat();
+  const { messages, append, isLoading } = useChat();
+  const topics = [
+    { emoji: "🧑‍💼", value: "work" },
+    { emoji: "📺", value: "television" },
+    { emoji: "🥘", value: "food" },
+    { emoji: "👨‍🎓", value: "study" },
+  ];
+  const jokes = [
+    { emoji: "", value: "witty" },
+    { emoji: "", value: "dark" },
+    { emoji: "", value: "silly" },
+    { emoji: "", value: "sarcastic" },
+  ];
 
-    const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [state, setState] = useState({
+    joke: "",
+    topic: "",
+  });
 
-    useEffect(() => {
-        if (messagesContainerRef.current) {
-            messagesContainerRef.current.scrollTop =
-                messagesContainerRef.current.scrollHeight;
-        }
-    }, [messages]);
+  const handleChange = ({
+    target: { name, value },
+  }: React.ChangeEvent<HTMLInputElement>) => {
+    setState({
+      ...state,
+      [name]: value,
+    });
+  };
 
-    return (
-        <div className="flex flex-col w-full h-screen max-w-md py-24 mx-auto stretch">
-            <div className="overflow-auto mb-8 w-full" ref={messagesContainerRef}>
-                {messages.map((m) => (
-                    <div
-                        key={m.id}
-                        className={`whitespace-pre-wrap ${
-                            m.role === "user"
-                                ? "bg-green-700 p-3 m-2 rounded-lg"
-                                : "bg-slate-700 p-3 m-2 rounded-lg"
-                        }`}
-                        dangerouslySetInnerHTML={{ __html: marked(m.content) }}
-                    >
-                    </div>
-                ))}
+  return (
+    <main className="mx-auto w-full p-24 flex flex-col">
+      <div className="p4 m-4">
+        <div className="flex flex-col items-center justify-center space-y-8 text-white">
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold">Story Telling App</h2>
+            <p className="text-zinc-500 dark:text-zinc-400">
+              Customize the style by selecting the topic and joke.
+            </p>
+          </div>
 
-                {isLoading && (
-                    <div className="flex justify-end pr-4">
-                        <span className="animate-bounce">...</span>
-                    </div>
-                )}
-            </div>
-            <div className="fixed bottom-0 w-full max-w-md">
-                <div className="flex flex-col justify-center mb-2 items-center">
-                    <div className="flex justify-center gap-4">
-                        <button
-                            className="bg-blue-500 p-2 text-white rounded shadow-xl"
-                            disabled={isLoading}
-                            onClick={() =>
-                                append({role: "user", content: "Give me a random recipe"})
-                            }
-                        >
-                            Random Recipe
-                        </button>
-                        <button
-                            className="bg-blue-500 p-2 text-white rounded shadow-xl"
-                            disabled={isLoading}
-                            onClick={() =>
-                                append({role: "user", content: "Tell me a joke"})
-                            }
-                        >
-                            Tell me a joke
-                        </button>
-                    </div>
+          <div className="space-y-4 bg-opacity-25 bg-gray-700 rounded-lg p-4">
+            <h3 className="text-xl font-semibold">topic</h3>
+
+            <div className="flex flex-wrap justify-center">
+              {topics.map(({ value, emoji }) => (
+                <div
+                  key={value}
+                  className="p-4 m-2 bg-opacity-25 bg-gray-600 rounded-lg"
+                >
+                  <input
+                    id={value}
+                    type="radio"
+                    value={value}
+                    name="topic"
+                    onChange={handleChange}
+                  />
+                  <label className="ml-2" htmlFor={value}>
+                    {`${emoji} ${value}`}
+                  </label>
                 </div>
-                <form onSubmit={handleSubmit} className="flex justify-center">
-                    <input
-                        className="w-[95%] p-2 mb-8 border border-gray-300 rounded shadow-xl text-black"
-                        disabled={isLoading}
-                        value={input}
-                        placeholder="Say something..."
-                        onChange={handleInputChange}
-                    />
-                </form>
+              ))}
             </div>
+          </div>
+
+          <div className="space-y-4 bg-opacity-25 bg-gray-700 rounded-lg p-4">
+            <h3 className="text-xl font-semibold">jokes</h3>
+
+            <div className="flex flex-wrap justify-center">
+              {jokes.map(({ value, emoji }) => (
+                <div
+                  key={value}
+                  className="p-4 m-2 bg-opacity-25 bg-gray-600 rounded-lg"
+                >
+                  <input
+                    id={value}
+                    type="radio"
+                    name="joke"
+                    value={value}
+                    onChange={handleChange}
+                  />
+                  <label className="ml-2" htmlFor={value}>
+                    {`${emoji} ${value}`}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
+            disabled={isLoading || !state.topic || !state.joke}
+            onClick={() =>
+              append({
+                role: "user",
+                content: `Generate a ${state.topic} joke in a ${state.joke} style`,
+              })
+            }
+          >
+            Generate joke
+          </button>
+
+          <div
+            hidden={
+              messages.length === 0 ||
+              messages[messages.length - 1]?.content.startsWith("Generate")
+            }
+            className="bg-opacity-25 bg-gray-700 rounded-lg p-4"
+          >
+            {messages[messages.length - 1]?.content}
+          </div>
         </div>
-    );
+      </div>
+    </main>
+  );
 }
