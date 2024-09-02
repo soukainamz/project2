@@ -3,15 +3,6 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 ## Joke Generator and Evaluator
 Welcome to the Joke Generator and Evaluator project! This application leverages advanced AI technologies to generate jokes and evaluate them based on various criteria.
 
-Features
-AI-Powered Joke Generation: Generate jokes on demand using sophisticated AI models. Customize the style and topic of the jokes to fit your needs.
-
-Joke Evaluation: The AI not only generates jokes but also evaluates them based on several important criteria:
-
-  Funny: Assess if the joke is humorous and engaging.
-  Appropriate: Determine if the joke is suitable for all audiences.
-  Offensive: Identify if the joke contains any offensive content.
-
 ## Getting Started
 
 ADD YOUR OPEN AI KEY TO THE `.env` FILE
